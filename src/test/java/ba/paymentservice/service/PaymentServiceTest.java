@@ -3,6 +3,8 @@ package ba.paymentservice.service;
 import ba.paymentservice.dto.PaymentCancellationResponse;
 import ba.paymentservice.dto.PaymentCreationRequest;
 import ba.paymentservice.dto.PaymentType;
+import ba.paymentservice.exception.PaymentAlreadyCanceledException;
+import ba.paymentservice.exception.PaymentNotFoundException;
 import ba.paymentservice.model.Payment;
 import ba.paymentservice.repository.PaymentIdProjection;
 import ba.paymentservice.repository.PaymentRepository;
@@ -301,7 +303,7 @@ class PaymentServiceTest {
 
         when(paymentRepository.findById(1L)).thenReturn(Optional.of(payment));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> paymentService.cancelPaymentById(1L));
+        Exception exception = assertThrows(PaymentAlreadyCanceledException.class, () -> paymentService.cancelPaymentById(1L));
         assertEquals("Payment is already canceled", exception.getMessage());
 
         verify(paymentRepository, times(1)).findById(1L);
@@ -327,6 +329,19 @@ class PaymentServiceTest {
         assertEquals("Payment can only be canceled on the same day it was created", exception.getMessage());
 
         verify(paymentRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testCancelPaymentNotFound() {
+        Long nonExistentPaymentId = 999L;
+        // Simulate that no payment is found for the given ID.
+        when(paymentRepository.findById(nonExistentPaymentId)).thenReturn(Optional.empty());
+
+        PaymentNotFoundException ex = assertThrows(PaymentNotFoundException.class, () -> {
+            paymentService.cancelPaymentById(nonExistentPaymentId);
+        });
+
+        assertEquals("Payment not found for ID: " + nonExistentPaymentId, ex.getMessage());
     }
 
 }

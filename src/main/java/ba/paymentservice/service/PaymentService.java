@@ -2,6 +2,8 @@ package ba.paymentservice.service;
 
 import ba.paymentservice.dto.PaymentCancellationResponse;
 import ba.paymentservice.dto.PaymentCreationRequest;
+import ba.paymentservice.exception.PaymentAlreadyCanceledException;
+import ba.paymentservice.exception.PaymentNotFoundException;
 import ba.paymentservice.model.Payment;
 import ba.paymentservice.repository.PaymentIdProjection;
 import ba.paymentservice.repository.PaymentRepository;
@@ -31,10 +33,10 @@ public class PaymentService {
 
     public Payment cancelPaymentById(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found for ID: " + paymentId));
 
         if (payment.isCanceled()) {
-            throw new IllegalArgumentException("Payment is already canceled");
+            throw new PaymentAlreadyCanceledException("Payment is already canceled");
         }
 
         if (!payment.getCreatedAt().toLocalDate().isEqual(LocalDateTime.now().toLocalDate())) {
