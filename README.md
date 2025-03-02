@@ -31,7 +31,7 @@ You can build and run the application with a single command using the Gradle Wra
 
 The application will start on port 8080 by default.
 
-### API Documentation
+## API Documentation
 
 ### 1. Create Payment
 
