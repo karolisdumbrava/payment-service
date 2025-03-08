@@ -11,7 +11,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,10 +24,12 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final Validator validator;
+    private final PaymentValidationService paymentValidationService;
 
-    public PaymentService(PaymentRepository paymentRepository, Validator validator) {
+    public PaymentService(PaymentRepository paymentRepository, Validator validator, PaymentValidationService paymentValidationService) {
         this.paymentRepository = paymentRepository;
         this.validator = validator;
+        this.paymentValidationService = paymentValidationService;
     }
 
     public Payment cancelPaymentById(Long paymentId) {
@@ -61,38 +62,8 @@ public class PaymentService {
     }
 
     public Payment createPayment(PaymentCreationRequest request) {
-        if (!("EUR".equalsIgnoreCase(request.getCurrency()) || "USD".equalsIgnoreCase(request.getCurrency()))) {
-            throw new IllegalArgumentException("Currency must be either EUR or USD");
-        }
-
-        switch (request.getPaymentType()) {
-            case TYPE1:
-                if (!("EUR".equalsIgnoreCase(request.getCurrency()))) {
-                    throw new IllegalArgumentException("Currency must be EUR for payment type TYPE1");
-                }
-                // Details are required for TYPE1 payments
-                if (!StringUtils.hasText(request.getDetails())) {
-                    throw new IllegalArgumentException("Details are required for payment type TYPE1");
-                }
-                break;
-            case TYPE2:
-                if (!("USD".equalsIgnoreCase(request.getCurrency()))) {
-                    throw new IllegalArgumentException("Currency must be USD for payment type TYPE2");
-                }
-                // Details are optional for TYPE2 payments.
-                break;
-            case TYPE3:
-                if (!StringUtils.hasText(request.getCreditorIban())) {
-                    throw new IllegalArgumentException("Creditor IBAN is required for payment type TYPE3");
-                }
-                // Creditor bank BIC is required for TYPE3 payments
-                if (!StringUtils.hasText(request.getCreditorBankBic())) {
-                    throw new IllegalArgumentException("Creditor bank BIC is required for payment type TYPE3");
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid payment type");
-        }
+        // Validate payment.
+        paymentValidationService.validate(request);
 
         return new Payment(
                 request.getPaymentType(),
