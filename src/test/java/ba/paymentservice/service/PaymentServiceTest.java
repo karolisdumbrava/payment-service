@@ -35,11 +35,14 @@ class PaymentServiceTest {
     @InjectMocks
     private PaymentService paymentService;
 
+
+    private PaymentValidationService paymentValidationService;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-        paymentService = new PaymentService(paymentRepository, validator);
+        paymentService = new PaymentService(paymentRepository, validator, paymentValidationService);
     }
 
     @Test
@@ -140,8 +143,8 @@ class PaymentServiceTest {
 
         PaymentCancellationResponse response = paymentService.getPaymentCancellationResponse(1L);
         assertNotNull(response);
-        assertEquals(1L, response.getId());
-        assertEquals(0, BigDecimal.valueOf(0.5).compareTo(response.getCancellationFee()));
+        assertEquals(1L, response.id());
+        assertEquals(0, BigDecimal.valueOf(0.5).compareTo(response.cancellationFee()));
 
         verify(paymentRepository, times(1)).findById(1L);
     }

@@ -10,13 +10,13 @@ public class Type1PaymentValidator implements PaymentValidator {
     @Override
     public void validate(PaymentCreationRequest request) {
         // Currency validation
-        Currency currency = Currency.valueOf(request.getCurrency().toUpperCase());
+        Currency currency = request.currency();
         if (currency != Currency.EUR) {
             throw new BadRequestException("Currency must be EUR for payment TYPE1");
         }
 
         // Details validation
-        if (!StringUtils.hasText(request.getDetails())) {
+        if (!StringUtils.hasText(request.details())) {
             throw new BadRequestException("Details are required for payment type TYPE1");
         }
     }

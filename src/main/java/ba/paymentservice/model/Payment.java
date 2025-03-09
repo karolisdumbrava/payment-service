@@ -1,131 +1,58 @@
 package ba.paymentservice.model;
 
+import ba.paymentservice.dto.Currency;
 import ba.paymentservice.dto.PaymentType;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
+// For JPA
+@NoArgsConstructor
+@AllArgsConstructor
 public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Enumerated(EnumType.STRING)
+    @Column(name = "payment_type", nullable = false)
     private PaymentType paymentType;
 
+    @Column(nullable = false)
     private BigDecimal amount;
-    private String currency;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Currency currency;
+
+    @Column(name = "debtor_iban", nullable = false, length = 34)
     private String debtorIban;
+
+    @Column(name = "creditor_iban", nullable = false, length = 34)
     private String creditorIban;
+
+    @Column
     private String details;
+
+    @Column(name = "creditor_bank_bic", nullable = false, length = 11)
     private String creditorBankBic;
+
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
     private boolean canceled;
+
+    @Column(name = "cancellation_fee", nullable = false)
     private BigDecimal cancellationFee;
-
-    // Constructor for JPA
-    public Payment() {}
-
-    public Payment(PaymentType paymentType, BigDecimal amount, String currency, String debtorIban, String creditorIban, String details, String creditorBankBic) {
-        this.paymentType = paymentType;
-        this.amount = amount;
-        this.currency = currency;
-        this.debtorIban = debtorIban;
-        this.creditorIban = creditorIban;
-        this.details = details;
-        this.creditorBankBic = creditorBankBic;
-        this.createdAt = LocalDateTime.now();
-        this.canceled = false;
-        this.cancellationFee = BigDecimal.ZERO;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long l) {
-        this.id = l;
-    }
-
-    // Getters and setters
-    public PaymentType getPaymentType() {
-        return paymentType;
-    }
-
-    public void setPaymentType(PaymentType paymentType) {
-        this.paymentType = paymentType;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public void setCurrency(String currency) {
-        this.currency = currency;
-    }
-
-    public String getDebtorIban() {
-        return debtorIban;
-    }
-
-    public void setDebtorIban(String debtorIban) {
-        this.debtorIban = debtorIban;
-    }
-
-    public String getCreditorIban() {
-        return creditorIban;
-    }
-
-    public void setCreditorIban(String creditorIban) {
-        this.creditorIban = creditorIban;
-    }
-
-    public String getDetails() {
-        return details;
-    }
-
-    public void setDetails(String details) {
-        this.details = details;
-    }
-
-    public String getCreditorBankBic() {
-        return creditorBankBic;
-    }
-
-    public void setCreditorBankBic(String creditorBankBic) {
-        this.creditorBankBic = creditorBankBic;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public boolean isCanceled() {
-        return canceled;
-    }
-
-    public void cancelPayment(BigDecimal fee) {
-        this.canceled = true;
-        this.cancellationFee = fee;
-    }
-
-    public BigDecimal getCancellationFee() {
-        return cancellationFee;
-    }
-
 }

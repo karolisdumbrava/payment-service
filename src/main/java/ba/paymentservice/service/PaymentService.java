@@ -2,6 +2,7 @@ package ba.paymentservice.service;
 
 import ba.paymentservice.dto.PaymentCancellationResponse;
 import ba.paymentservice.dto.PaymentCreationRequest;
+import ba.paymentservice.exception.BadRequestException;
 import ba.paymentservice.exception.PaymentAlreadyCanceledException;
 import ba.paymentservice.exception.PaymentNotFoundException;
 import ba.paymentservice.model.Payment;
@@ -41,7 +42,7 @@ public class PaymentService {
         }
 
         if (!payment.getCreatedAt().toLocalDate().isEqual(LocalDateTime.now().toLocalDate())) {
-            throw new IllegalArgumentException("Payment can only be canceled on the same day it was created");
+            throw new BadRequestException("Payment can only be canceled on the same day it was created");
         }
 
         int hourOfCreation = payment.getCreatedAt().getHour();
@@ -56,7 +57,8 @@ public class PaymentService {
         // Calculate cancellation fee h = hour of creation * k = coefficient
         BigDecimal fee = BigDecimal.valueOf(hourOfCreation).multiply(coefficient);
 
-        payment.cancelPayment(fee);
+        payment.setCancellationFee(fee);
+        payment.setCanceled(true);
 
         return paymentRepository.save(payment);
     }
@@ -66,13 +68,18 @@ public class PaymentService {
         paymentValidationService.validate(request);
 
         return new Payment(
-                request.getPaymentType(),
-                request.getAmount(),
-                request.getCurrency(),
-                request.getDebtorIban(),
-                request.getCreditorIban(),
-                request.getDetails(),
-                request.getCreditorBankBic()
+                null,
+                null,
+                request.paymentType(),
+                request.amount(),
+                request.currency(),
+                request.debtorIban(),
+                request.creditorIban(),
+                request.details(),
+                request.creditorBankBic(),
+                LocalDateTime.now(),
+                false,
+                BigDecimal.ZERO
         );
 
     }
@@ -97,6 +104,10 @@ public class PaymentService {
             projections = paymentRepository.findByCanceledFalse();
         }
 
+        if (projections.isEmpty()) {
+            throw new PaymentNotFoundException("No non-canceled payments found");
+        }
+
         return projections.stream()
                 .map(PaymentIdProjection::getId)
                 .collect(Collectors.toList());
@@ -104,7 +115,7 @@ public class PaymentService {
 
     public PaymentCancellationResponse getPaymentCancellationResponse(Long paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new IllegalArgumentException("Payment not found"));
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
 
         return new PaymentCancellationResponse(payment.getId(), payment.getCancellationFee());
     }
