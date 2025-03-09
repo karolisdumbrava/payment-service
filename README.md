@@ -62,10 +62,12 @@ The application will start on port 8080 by default.
   }
   ```
   
-### 3. Cancel Payment
+### 3. Cancel Payment by ID
 
 - **URL:** `/api/payments/{id}/cancel`
 - **Method:** `POST`
+- **Example:**
+  - `/api/payments/21/cancel`
 
 ### 4. Get Payments
 
