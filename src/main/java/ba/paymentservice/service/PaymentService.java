@@ -6,8 +6,10 @@ import ba.paymentservice.exception.BadRequestException;
 import ba.paymentservice.exception.PaymentAlreadyCanceledException;
 import ba.paymentservice.exception.PaymentNotFoundException;
 import ba.paymentservice.model.Payment;
+import ba.paymentservice.model.User;
 import ba.paymentservice.repository.PaymentIdProjection;
 import ba.paymentservice.repository.PaymentRepository;
+import ba.paymentservice.repository.UserRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
@@ -26,11 +28,13 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final Validator validator;
     private final PaymentValidationService paymentValidationService;
+    private final UserRepository userRepository;
 
-    public PaymentService(PaymentRepository paymentRepository, Validator validator, PaymentValidationService paymentValidationService) {
+    public PaymentService(PaymentRepository paymentRepository, Validator validator, PaymentValidationService paymentValidationService, UserRepository userRepository) {
         this.paymentRepository = paymentRepository;
         this.validator = validator;
         this.paymentValidationService = paymentValidationService;
+        this.userRepository = userRepository;
     }
 
     public Payment cancelPaymentById(Long paymentId) {
@@ -67,21 +71,22 @@ public class PaymentService {
         // Validate payment.
         paymentValidationService.validate(request);
 
-        return new Payment(
-                null,
-                null,
-                request.paymentType(),
-                request.amount(),
-                request.currency(),
-                request.debtorIban(),
-                request.creditorIban(),
-                request.details(),
-                request.creditorBankBic(),
-                LocalDateTime.now(),
-                false,
-                BigDecimal.ZERO
-        );
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new BadRequestException("User not found for ID: " + request.userId()));
 
+        return Payment.builder()
+                .paymentType(request.paymentType())
+                .amount(request.amount())
+                .currency(request.currency())
+                .debtorIban(request.debtorIban())
+                .creditorIban(request.creditorIban())
+                .details(request.details())
+                .creditorBankBic(request.creditorBankBic())
+                .createdAt(LocalDateTime.now())
+                .canceled(false)
+                .cancellationFee(BigDecimal.ZERO)
+                .user(user)
+                .build();
     }
 
     public Payment createAndSavePayment(PaymentCreationRequest request) {
@@ -118,6 +123,18 @@ public class PaymentService {
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
 
         return new PaymentCancellationResponse(payment.getId(), payment.getCancellationFee());
+    }
+
+    public List<Long> getPaymentIdsByUser(Long userId) {
+        List<PaymentIdProjection> payments = paymentRepository.findByUserId(userId);
+
+        if (payments.isEmpty()) {
+            throw new PaymentNotFoundException("No payments found for user: " + userId);
+        }
+
+        return payments.stream()
+                .map(PaymentIdProjection::getId)
+                .collect(Collectors.toList());
     }
 
 }

@@ -14,4 +14,5 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     // This method return all payments that are canceled and have an equal amount to the provided one.
     List<PaymentIdProjection> findByCanceledAndAmount(Boolean canceled, BigDecimal amount);
 
+    List<PaymentIdProjection> findByUserId(Long userId);
 }

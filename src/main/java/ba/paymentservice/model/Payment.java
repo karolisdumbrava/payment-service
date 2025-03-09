@@ -2,8 +2,10 @@ package ba.paymentservice.model;
 
 import ba.paymentservice.dto.Currency;
 import ba.paymentservice.dto.PaymentType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 // For JPA
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Payment {
 
     @Id
@@ -55,4 +58,9 @@ public class Payment {
 
     @Column(name = "cancellation_fee", nullable = false)
     private BigDecimal cancellationFee;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 }

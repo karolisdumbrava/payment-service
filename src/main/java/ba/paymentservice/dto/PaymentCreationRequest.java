@@ -29,6 +29,9 @@ public record PaymentCreationRequest(
 
         // Type 3 payments require creditor bank BIC
         @Size(max = 11)
-        String creditorBankBic
+        String creditorBankBic,
+
+        @NotNull
+        Long userId
 ) {
 }
