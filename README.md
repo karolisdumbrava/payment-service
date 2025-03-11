@@ -20,9 +20,17 @@
 
 - Java 17
 - Gradle (the Gradle Wrapper is included)
+- Docker
+
+### Setup for database
+Create .ENV file in project based on .env.example file.
+
+Run the following command:
+```bash
+docker compose up -d
+```
 
 ### Running the Application
-
 You can build and run the application with a single command using the Gradle Wrapper:
 
 ```bash
@@ -42,8 +50,13 @@ The application will start on port 8080 by default.
     "username": "john_doe"
   }
   ```
+  
+### 2. User Deletion
+- **URL:** `/api/users/{userId}`
+- **Method:** `DELETE`
+- **Note:** This method also deletes associated Payment records with it.
 
-### 2. Create Payment
+### 3. Create Payment
 
 - **URL:** `/api/payments`
 - **Method:** `POST`
@@ -62,14 +75,14 @@ The application will start on port 8080 by default.
   }
   ```
   
-### 3. Cancel Payment by ID
+### 4. Cancel Payment by ID
 
 - **URL:** `/api/payments/{id}/cancel`
 - **Method:** `POST`
 - **Example:**
   - `/api/payments/21/cancel`
 
-### 4. Get Payments
+### 5. Get Payments
 
 - **URL:** `/api/payments`
 - **Method:** `GET`
@@ -79,7 +92,7 @@ The application will start on port 8080 by default.
   - `/api/payments?amount=100.0`
   - `/api/payments`
 
-### 5. Get Payments by User ID
+### 6. Get Payments by User ID
 
 - **URL:** `/api/users/{userId}/payments`
 - **Method:** `GET`
@@ -87,7 +100,7 @@ The application will start on port 8080 by default.
   - `/api/users/1/payments`
 
 
-### 6. Get Payment Cancellation Info
+### 7. Get Payment Cancellation Info
 
 - **URL:** `/api/payments/{id}`
 - **Method:** `GET`
