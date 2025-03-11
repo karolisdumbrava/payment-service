@@ -1,6 +1,7 @@
 package ba.paymentservice.service;
 
 import ba.paymentservice.dto.UserCreationRequest;
+import ba.paymentservice.exception.BadRequestException;
 import ba.paymentservice.model.User;
 import ba.paymentservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -15,9 +16,17 @@ public class UserService {
     }
 
     public User createUser(UserCreationRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new BadRequestException("Username already exists");
+        }
+
         User user = new User();
         user.setUsername(request.username());
 
         return userRepository.save(user);
+    }
+
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
     }
 }

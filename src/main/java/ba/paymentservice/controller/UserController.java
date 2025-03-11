@@ -36,4 +36,11 @@ public class UserController {
         List<Long> paymentIds = paymentService.getPaymentIdsByUser(userId);
         return ResponseEntity.ok(paymentIds);
     }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        // 204 No content
+        return ResponseEntity.noContent().build();
+    }
 }
