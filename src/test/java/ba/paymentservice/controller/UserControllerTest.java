@@ -7,12 +7,9 @@ import ba.paymentservice.service.PaymentService;
 import ba.paymentservice.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,22 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
-@Import(UserControllerTest.TestConfig.class)
 class UserControllerTest {
-
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        public UserService userService() {
-            return Mockito.mock(UserService.class);
-        }
-
-        @Bean
-        public PaymentService paymentService() {
-            return Mockito.mock(PaymentService.class);
-        }
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,9 +34,11 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @Autowired
+    @MockitoBean
     private UserService userService;
 
     @Autowired
+    @MockitoBean
     private PaymentService paymentService;
 
     @Test
