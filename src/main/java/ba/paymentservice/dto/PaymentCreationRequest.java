@@ -31,7 +31,7 @@ public record PaymentCreationRequest(
         @Size(max = 11)
         String creditorBankBic,
 
-        @NotNull
+        @NotNull(message = "User ID is required")
         Long userId
 ) {
 }

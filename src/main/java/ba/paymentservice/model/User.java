@@ -2,13 +2,14 @@ package ba.paymentservice.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
@@ -21,6 +22,7 @@ public class User {
     @Version
     private Long version;
 
+    @Setter
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -29,6 +31,7 @@ public class User {
     // Removing a payment will unassign it and delete it (orphanRemoval)
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
+    @Setter
     private List<Payment> payments = new ArrayList<>();
 
     public void addPayment(Payment payment) {

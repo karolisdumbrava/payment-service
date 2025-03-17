@@ -4,10 +4,15 @@ import ba.paymentservice.dto.Currency;
 import ba.paymentservice.dto.PaymentCreationRequest;
 import ba.paymentservice.dto.PaymentType;
 import ba.paymentservice.exception.BadRequestException;
+import ba.paymentservice.validator.PaymentValidator;
+import ba.paymentservice.validator.Type1PaymentValidator;
+import ba.paymentservice.validator.Type2PaymentValidator;
+import ba.paymentservice.validator.Type3PaymentValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,7 +22,12 @@ public class PaymentValidationServiceStrategyTest {
 
     @BeforeEach
     public void setUp() {
-        paymentValidationService = new PaymentValidationService();
+        List<PaymentValidator> validators = List.of(
+                new Type1PaymentValidator(),
+                new Type2PaymentValidator(),
+                new Type3PaymentValidator()
+        );
+        paymentValidationService = new PaymentValidationService(validators);
     }
 
     // ----- TYPE1 Tests -----

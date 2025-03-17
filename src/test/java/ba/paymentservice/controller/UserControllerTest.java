@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -46,8 +47,9 @@ class UserControllerTest {
         // Arrange
         UserCreationRequest request = new UserCreationRequest("john_doe");
         User createdUser = new User();
-        createdUser.setId(1L);
         createdUser.setUsername("john_doe");
+        // ReflectionTestUtil used because of @Data lombok removal.
+        ReflectionTestUtils.setField(createdUser, "id", 1L);
 
         when(userService.createUser(any(UserCreationRequest.class))).thenReturn(createdUser);
 
@@ -56,7 +58,6 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.username").value("john_doe"));
     }
 

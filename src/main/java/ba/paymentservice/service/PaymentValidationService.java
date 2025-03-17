@@ -7,17 +7,17 @@ import ba.paymentservice.validator.*;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentValidationService {
     private final Map<PaymentType, PaymentValidator> validatorMap;
 
-    public PaymentValidationService() {
-        validatorMap = new EnumMap<>(PaymentType.class);
-        validatorMap.put(PaymentType.TYPE1, new Type1PaymentValidator());
-        validatorMap.put(PaymentType.TYPE2, new Type2PaymentValidator());
-        validatorMap.put(PaymentType.TYPE3, new Type3PaymentValidator());
+    public PaymentValidationService(List<PaymentValidator> validators) {
+        this.validatorMap = validators.stream()
+                .collect(Collectors.toMap(PaymentValidator::getSupportedPaymentType, v -> v, (v1,v2) -> v1, () -> new EnumMap<>(PaymentType.class)));
     }
 
     public void validate(PaymentCreationRequest request) {

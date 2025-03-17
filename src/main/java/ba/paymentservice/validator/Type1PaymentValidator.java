@@ -2,10 +2,18 @@ package ba.paymentservice.validator;
 
 import ba.paymentservice.dto.Currency;
 import ba.paymentservice.dto.PaymentCreationRequest;
+import ba.paymentservice.dto.PaymentType;
 import ba.paymentservice.exception.BadRequestException;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+@Component
 public class Type1PaymentValidator implements PaymentValidator {
+
+    @Override
+    public PaymentType getSupportedPaymentType() {
+        return PaymentType.TYPE1;
+    }
 
     @Override
     public void validate(PaymentCreationRequest request) {
