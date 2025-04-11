@@ -21,7 +21,7 @@ public class PaymentValidationService {
     }
 
     public void validate(PaymentCreationRequest request) {
-        PaymentValidator validator = validatorMap.get(request.paymentType());
+        var validator = validatorMap.get(request.paymentType());
         if (validator == null) {
             throw new BadRequestException("Invalid payment type");
         }

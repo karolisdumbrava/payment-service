@@ -38,7 +38,7 @@ public class PaymentService {
     }
 
     public Payment cancelPaymentById(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
+        var payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found for ID: " + paymentId));
 
         if (payment.isCanceled()) {
@@ -49,19 +49,7 @@ public class PaymentService {
             throw new BadRequestException("Payment can only be canceled on the same day it was created");
         }
 
-        int hourOfCreation = payment.getCreatedAt().getHour();
-
-        BigDecimal coefficient = switch (payment.getPaymentType()) {
-            case TYPE1 -> BigDecimal.valueOf(0.05);
-            case TYPE2 -> BigDecimal.valueOf(0.1);
-            case TYPE3 -> BigDecimal.valueOf(0.15);
-            // No need for default case as all enum values are covered
-        };
-
-        // Calculate cancellation fee h = hour of creation * k = coefficient
-        BigDecimal fee = BigDecimal.valueOf(hourOfCreation).multiply(coefficient);
-
-        payment.setCancellationFee(fee);
+        payment.setCancellationFee(calculateCancellationFee(payment));
         payment.setCanceled(true);
 
         return paymentRepository.save(payment);
@@ -71,15 +59,15 @@ public class PaymentService {
         // Validate payment.
         paymentValidationService.validate(request);
 
-        User user = userRepository.findById(request.userId())
+        var user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new BadRequestException("User not found for ID: " + request.userId()));
 
         return Payment.builder()
                 .paymentType(request.paymentType())
                 .amount(request.amount())
                 .currency(request.currency())
-                .debtorIban(request.debtorIban())
-                .creditorIban(request.creditorIban())
+                .debtorIban(request.debtorIban().replace(" ", "").toUpperCase())
+                .creditorIban(request.creditorIban().replace(" ", "").toUpperCase())
                 .details(request.details())
                 .creditorBankBic(request.creditorBankBic())
                 .createdAt(LocalDateTime.now())
@@ -95,7 +83,7 @@ public class PaymentService {
             throw new ConstraintViolationException(violations);
         }
 
-        Payment payment = createPayment(request);
+        var payment = createPayment(request);
         return paymentRepository.save(payment);
     }
 
@@ -119,7 +107,7 @@ public class PaymentService {
     }
 
     public PaymentCancellationResponse getPaymentCancellationResponse(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
+        var payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
 
         return new PaymentCancellationResponse(payment.getId(), payment.getCancellationFee());
@@ -135,6 +123,20 @@ public class PaymentService {
         return payments.stream()
                 .map(PaymentIdProjection::getId)
                 .collect(Collectors.toList());
+    }
+
+    public BigDecimal calculateCancellationFee(Payment payment) {
+        int hourOfCreation = payment.getCreatedAt().getHour();
+
+        BigDecimal coefficient = switch (payment.getPaymentType()) {
+            case TYPE1 -> BigDecimal.valueOf(0.05);
+            case TYPE2 -> BigDecimal.valueOf(0.1);
+            case TYPE3 -> BigDecimal.valueOf(0.15);
+            // No need for default case as all enum values are covered
+        };
+
+        // Calculate and return cancellation fee h = hour of creation * k = coefficient
+        return BigDecimal.valueOf(hourOfCreation).multiply(coefficient);
     }
 
 }

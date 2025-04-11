@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PaymentNotFoundException.class)
     public ResponseEntity<ApiError> handlePaymentNotFoundException(PaymentNotFoundException exception, HttpServletRequest request) {
-        ApiError error = new ApiError(
+        var error = new ApiError(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
                 request.getRequestURI(),
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PaymentAlreadyCanceledException.class)
     public ResponseEntity<ApiError> handlePaymentAlreadyCanceledException(PaymentAlreadyCanceledException exception, HttpServletRequest request) {
-        ApiError error = new ApiError(
+        var error = new ApiError(
                 HttpStatus.CONFLICT.value(),
                 exception.getMessage(),
                 request.getRequestURI(),
@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiError> handleBadRequestException(BadRequestException exception, HttpServletRequest request) {
-        ApiError error = new ApiError(
+        var error = new ApiError(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
                 request.getRequestURI(),

@@ -21,7 +21,8 @@ public record PaymentCreationRequest(
         String debtorIban,
 
         @NotBlank(message = "Creditor IBAN is required")
-        @Size(max = 34, message = "Creditor IBAN must be at most 34 characters")
+        @Size(min = 15, max = 34, message = "IBAN must be between 15 and 34 characters")
+        @Pattern(regexp = "^[A-Z]{2}\\d{2}[A-Z0-9]{11,30}$", message = "Invalid IBAN format")
         String creditorIban,
 
         // Type 1 and Type 2 payments require details

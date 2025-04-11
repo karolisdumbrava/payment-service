@@ -27,7 +27,7 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<?> createPayment(@Valid @RequestBody PaymentCreationRequest request) {
         try {
-            Payment payment = paymentService.createAndSavePayment(request);
+            var payment = paymentService.createAndSavePayment(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(payment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -37,7 +37,7 @@ public class PaymentController {
     @PostMapping("/{paymentId}/cancel")
     public ResponseEntity<?> cancelPayment(@PathVariable Long paymentId) {
         try {
-            Payment payment = paymentService.cancelPaymentById(paymentId);
+            var payment = paymentService.cancelPaymentById(paymentId);
             return ResponseEntity.ok(payment);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -52,7 +52,7 @@ public class PaymentController {
 
     @GetMapping("/{paymentId}")
     public ResponseEntity<PaymentCancellationResponse> getPaymentById(@PathVariable Long paymentId) {
-        PaymentCancellationResponse response = paymentService.getPaymentCancellationResponse(paymentId);
+        var response = paymentService.getPaymentCancellationResponse(paymentId);
         return ResponseEntity.ok(response);
     }
 }

@@ -18,7 +18,7 @@ public class Type1PaymentValidator implements PaymentValidator {
     @Override
     public void validate(PaymentCreationRequest request) {
         // Currency validation
-        Currency currency = request.currency();
+        var currency = request.currency();
         if (currency != Currency.EUR) {
             throw new BadRequestException("Currency must be EUR for payment TYPE1");
         }

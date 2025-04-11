@@ -20,7 +20,7 @@ public class UserService {
             throw new BadRequestException("Username already exists");
         }
 
-        User user = new User();
+        var user = new User();
         user.setUsername(request.username());
 
         return userRepository.save(user);
